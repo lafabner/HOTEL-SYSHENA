@@ -1,0 +1,13 @@
+{% extends 'inc/base.html' %}
+{% block title %}Acceso restringido{% endblock %}
+{% block breadcrumb %}Acceso restringido{% endblock %}
+{% block content %}
+<section class="panel">
+  <div class="panel-body empty">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+    <h1 class="h4">No tienes permiso para ver esta pantalla</h1>
+    <p>Tu rol no incluye acceso a esta opción. Usa el menú lateral para ir a una pantalla permitida.</p>
+    <a class="btn-primary-app" href="{% url 'inicio' %}">Volver al inicio</a>
+  </div>
+</section>
+{% endblock %}

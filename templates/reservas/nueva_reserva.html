@@ -1,0 +1,70 @@
+{% extends 'inc/base.html' %}
+{% block title %}Nueva reserva{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="eyebrow">Reservas</div>
+    <h1>Nueva reserva</h1>
+    <p>Registra la reserva con validación de fechas, capacidad y disponibilidad.</p>
+  </div>
+</div>
+
+<div class="steps">
+  <div class="step active"><span>1</span>Huésped</div>
+  <div class="step active"><span>2</span>Estadía</div>
+  <div class="step"><span>3</span>Confirmación</div>
+</div>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+  <div class="layout-2">
+    <div class="panel">
+      <div class="panel-body">
+        <div class="form-section">
+          <h2>Datos del huésped</h2>
+          <div class="form-grid">
+            <div class="field"><label>{{ huesped_form.tipo_documento.label }}</label>{{ huesped_form.tipo_documento }}{{ huesped_form.tipo_documento.errors }}</div>
+            <div class="field"><label>{{ huesped_form.numero_documento.label }}</label>{{ huesped_form.numero_documento }}{{ huesped_form.numero_documento.errors }}</div>
+            <div class="field"><label>{{ huesped_form.nombres.label }}</label>{{ huesped_form.nombres }}{{ huesped_form.nombres.errors }}</div>
+            <div class="field"><label>{{ huesped_form.apellidos.label }}</label>{{ huesped_form.apellidos }}{{ huesped_form.apellidos.errors }}</div>
+            <div class="field"><label>{{ huesped_form.telefono.label }}</label>{{ huesped_form.telefono }}{{ huesped_form.telefono.errors }}</div>
+            <div class="field"><label>{{ huesped_form.correo.label }}</label>{{ huesped_form.correo }}{{ huesped_form.correo.errors }}</div>
+            <div class="field"><label>{{ huesped_form.nacionalidad.label }}</label>{{ huesped_form.nacionalidad }}{{ huesped_form.nacionalidad.errors }}</div>
+          </div>
+        </div>
+        <div class="form-section">
+          <h2>Datos de estadía</h2>
+          <div class="form-grid">
+            <div class="field"><label>{{ estadia_form.fecha_entrada.label }}</label>{{ estadia_form.fecha_entrada }}{{ estadia_form.fecha_entrada.errors }}</div>
+            <div class="field"><label>{{ estadia_form.fecha_salida.label }}</label>{{ estadia_form.fecha_salida }}{{ estadia_form.fecha_salida.errors }}</div>
+            <div class="field"><label>{{ estadia_form.numero_huespedes.label }}</label>{{ estadia_form.numero_huespedes }}{{ estadia_form.numero_huespedes.errors }}</div>
+            <div class="field"><label>{{ estadia_form.habitacion.label }}</label>{{ estadia_form.habitacion }}{{ estadia_form.habitacion.errors }}</div>
+          </div>
+        </div>
+        <div class="form-section">
+          <h2>Observaciones</h2>
+          {{ estadia_form.observaciones }}{{ estadia_form.observaciones.errors }}
+        </div>
+        <div class="d-flex justify-content-end gap-2">
+          <a class="btn-secondary-app" href="{% url 'reservas' %}">Cancelar</a>
+          <button class="btn-primary-app" type="submit">Confirmar reserva</button>
+        </div>
+      </div>
+    </div>
+    <aside class="summary-card">
+      <div class="eyebrow">Resumen</div>
+      {% if resumen %}
+        <h2 class="h5 mt-2">Habitación {{ resumen.habitacion.numero }}</h2>
+        <p class="text-secondary">{{ resumen.habitacion.tipo_habitacion.nombre }} · Capacidad {{ resumen.habitacion.capacidad }} · Piso {{ resumen.habitacion.piso|default:"—" }}</p>
+        <div class="summary-row"><span>{{ resumen.noches }} noche{{ resumen.noches|pluralize }}</span><strong>${{ resumen.total|floatformat:"0" }}</strong></div>
+        <div class="summary-row"><span>Servicios</span><strong>$0</strong></div>
+        <div class="summary-row"><span>Total</span><strong>${{ resumen.total|floatformat:"0" }}</strong></div>
+        <small class="d-block mt-3">La disponibilidad se verificará nuevamente antes de guardar.</small>
+      {% else %}
+        <h2 class="h5 mt-2">Selecciona fechas y habitación</h2>
+        <p class="text-secondary">El resumen aparece cuando el formulario es válido.</p>
+      {% endif %}
+    </aside>
+  </div>
+</form>
+{% endblock %}

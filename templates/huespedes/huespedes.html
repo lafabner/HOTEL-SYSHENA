@@ -1,0 +1,58 @@
+{% extends 'inc/base.html' %}
+{% block title %}Huéspedes{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="eyebrow">Personas</div>
+    <h1>Huéspedes</h1>
+    <p>Consulta datos de contacto e historial de reservas.</p>
+  </div>
+  <div class="actions">
+    <a class="btn-primary-app" href="{% url 'nueva_reserva' %}">＋ Registrar huésped</a>
+  </div>
+</div>
+
+<article class="panel">
+  <div class="panel-head">
+    <div class="field flex-grow-1">
+      <label class="visually-hidden" for="gq">Buscar</label>
+      <input class="form-control table-search" data-table="guestTable" id="gq" name="q"
+             value="{{ q_actual }}" placeholder="Buscar por nombre, documento o correo">
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table class="app-table" id="guestTable">
+      <thead><tr><th>Huésped</th><th>Documento</th><th>Contacto</th><th>Nacionalidad</th><th>Reservas</th><th>Acción</th></tr></thead>
+      <tbody>
+      {% for h in huespedes %}
+        <tr>
+          <td>
+            <div class="profile-line">
+              <div class="small-avatar">{{ h.nombres.0 }}{{ h.apellidos.0 }}</div>
+              <strong>{{ h.nombres }} {{ h.apellidos }}</strong>
+            </div>
+          </td>
+          <td>{{ h.tipo_documento }} {{ h.numero_documento }}</td>
+          <td>{{ h.correo|default:"—" }}<br>{{ h.telefono }}</td>
+          <td>{{ h.nacionalidad }}</td>
+          <td>{{ h.total_reservas }}</td>
+          <td><a class="btn-secondary-app" href="{% url 'reservas' %}?q={{ h.numero_documento }}">Historial</a></td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="6"><div class="empty">No hay huéspedes que coincidan con la búsqueda.</div></td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if is_paginated %}
+  <div class="pagination-app">
+    <span>Mostrando {{ page_obj.start_index }}–{{ page_obj.end_index }} de {{ paginator.count }} huésped{{ paginator.count|pluralize }}</span>
+    <div>
+      {% if page_obj.has_previous %}<a class="btn-secondary-app" href="?page={{ page_obj.previous_page_number }}{% if q_actual %}&q={{ q_actual }}{% endif %}">Anterior</a>{% endif %}
+      {% if page_obj.has_next %}<a class="btn-secondary-app" href="?page={{ page_obj.next_page_number }}{% if q_actual %}&q={{ q_actual }}{% endif %}">Siguiente</a>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+</article>
+{% endblock %}

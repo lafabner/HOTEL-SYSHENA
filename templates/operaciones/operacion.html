@@ -1,0 +1,97 @@
+{% extends 'inc/base.html' %}
+{% block title %}Check-in y Check-out{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="eyebrow">Operación</div>
+    <h1>Check-in y check-out</h1>
+    <p>Registra entradas, salidas y estados de las habitaciones.</p>
+  </div>
+  <div class="actions">
+    <a class="btn-primary-app" href="{% url 'reservas' %}">Ver reservas</a>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <article class="kpi"><div class="kpi-top"><span>Llegadas de hoy</span></div><strong>{{ llegadas_hoy|length }}</strong><small>Reservas por recibir</small></article>
+  <article class="kpi"><div class="kpi-top"><span>En estadía</span></div><strong>{{ en_curso|length }}</strong><small>Huéspedes en el alojamiento</small></article>
+  <article class="kpi"><div class="kpi-top"><span>Salidas de hoy</span></div><strong>{{ salidas_hoy|length }}</strong><small>Check-out pendientes</small></article>
+  <article class="kpi"><div class="kpi-top"><span>Reservas con salida pendiente</span></div><strong>{{ total }}</strong><small>Incluye futuras</small></article>
+</div>
+
+{% if llegadas_hoy %}
+<article class="panel" style="margin-top:18px">
+  <div class="panel-head"><h2>Llegadas de hoy</h2></div>
+  <div class="table-wrap">
+    <table class="app-table">
+      <thead><tr><th>Código</th><th>Huésped</th><th>Habitación</th><th>Fechas</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <tbody>
+      {% for r in llegadas_hoy %}
+        <tr>
+          <td><strong>{{ r.codigo }}</strong></td>
+          <td>{{ r.huesped.nombres }} {{ r.huesped.apellidos }}</td>
+          <td>{{ r.habitacion.numero }}</td>
+          <td>{{ r.fecha_entrada|date:"j M" }} – {{ r.fecha_salida|date:"j M" }}</td>
+          <td><span class="badge-app {% if r.estado == 'PENDIENTE' %}pending{% else %}confirmed{% endif %}">{{ r.get_estado_display }}</span></td>
+          <td><a class="btn-primary-app" href="{% url 'operacion' %}?accion=checkin&pk={{ r.pk }}">Check-in</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</article>
+{% endif %}
+
+{% if en_curso %}
+<article class="panel" style="margin-top:18px">
+  <div class="panel-head"><h2>Estadías en curso</h2></div>
+  <div class="table-wrap">
+    <table class="app-table">
+      <thead><tr><th>Código</th><th>Huésped</th><th>Habitación</th><th>Salida</th><th>Saldo</th><th>Acciones</th></tr></thead>
+      <tbody>
+      {% for r in en_curso %}
+        <tr>
+          <td><strong>{{ r.codigo }}</strong></td>
+          <td>{{ r.huesped.nombres }} {{ r.huesped.apellidos }}</td>
+          <td>{{ r.habitacion.numero }}</td>
+          <td>{{ r.fecha_salida|date:"j M" }}</td>
+          <td>${{ r.saldo_pendiente|floatformat:"0" }}</td>
+          <td><a class="btn-secondary-app" href="{% url 'pagos' %}?reserva={{ r.pk }}">Cuenta</a>
+              <a class="btn-primary-app" href="{% url 'operacion' %}?accion=checkout&pk={{ r.pk }}">Check-out</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</article>
+{% endif %}
+
+{% if salidas_hoy %}
+<article class="panel" style="margin-top:18px">
+  <div class="panel-head"><h2>Salidas de hoy</h2></div>
+  <div class="table-wrap">
+    <table class="app-table">
+      <thead><tr><th>Código</th><th>Huésped</th><th>Habitación</th><th>Saldo</th><th>Acciones</th></tr></thead>
+      <tbody>
+      {% for r in salidas_hoy %}
+        <tr>
+          <td><strong>{{ r.codigo }}</strong></td>
+          <td>{{ r.huesped.nombres }} {{ r.huesped.apellidos }}</td>
+          <td>{{ r.habitacion.numero }}</td>
+          <td>${{ r.saldo_pendiente|floatformat:"0" }}</td>
+          <td><a class="btn-secondary-app" href="{% url 'pagos' %}?reserva={{ r.pk }}">Cuenta</a>
+              <a class="btn-primary-app" href="{% url 'operacion' %}?accion=checkout&pk={{ r.pk }}">Check-out</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</article>
+{% endif %}
+
+{% if not llegadas_hoy and not en_curso and not salidas_hoy %}
+<article class="panel" style="margin-top:18px">
+  <div class="empty">No hay actividad para hoy.</div>
+</article>
+{% endif %}
+{% endblock %}

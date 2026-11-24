@@ -1,0 +1,75 @@
+{% extends 'inc/base.html' %}
+{% load imagenes %}
+{% block title %}Habitaciones{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="eyebrow">Inventario</div>
+    <h1>Habitaciones</h1>
+    <p>Administra tipos, capacidad, precio, piso y estado operativo.</p>
+  </div>
+  <div class="actions">
+    <a class="btn-primary-app" href="#">＋ Nueva habitación</a>
+  </div>
+</div>
+
+<form class="filterbar" method="get" novalidate>
+  <div class="field search-wide">
+    <label for="hq">Buscar habitación</label>
+    <input class="form-control table-search" data-table="habitacionesTable" id="hq" name="q" value="{{ q_actual }}" placeholder="Número o tipo">
+  </div>
+  <div class="field">
+    <label for="hestado">Estado</label>
+    <select class="form-select" id="hestado" name="estado">
+      <option value="">Todos</option>
+      {% for valor, texto in estados %}<option value="{{ valor }}"{% if estado_actual == valor %} selected{% endif %}>{{ texto }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="field">
+    <label for="htipo">Tipo</label>
+    <select class="form-select" id="htipo" name="tipo">
+      <option value="">Todos</option>
+      {% for t in tipos %}<option value="{{ t }}"{% if tipo_actual == t %} selected{% endif %}>{{ t }}</option>{% endfor %}
+    </select>
+  </div>
+  <div></div>
+  <button class="btn-secondary-app" type="submit">Aplicar</button>
+  <a class="btn-secondary-app" href="{% url 'habitaciones' %}">Limpiar</a>
+</form>
+
+<div class="room-grid">
+{% for h in habitaciones %}
+  <article class="room-card">
+    <div class="room-foto" data-habitacion="{{ h.pk }}">
+      <img src="{{ h.tipo_habitacion.nombre|foto_habitacion }}" alt="Imagen ilustrativa de habitación {{ h.tipo_habitacion.nombre }}" width="720" height="480" loading="lazy">
+    </div>
+    <div class="room-body">
+      <div class="room-title">
+        <h3>{{ h.numero }} · {{ h.tipo_habitacion.nombre }}</h3>
+        <span class="badge-app {{ h.clase_estado }}">{{ h.get_estado_display }}</span>
+      </div>
+      <div class="room-meta">
+        <span>{{ h.capacidad }} huésped{{ h.capacidad|pluralize }}</span>
+        <span>Piso {{ h.piso|default:"—" }}</span>
+        <span>{{ h.reservas_activas }} reserva{{ h.reservas_activas|pluralize }} activa{{ h.reservas_activas|pluralize }}</span>
+      </div>
+      <div class="price">{{ h.precio_noche|moneda_cop }} / noche</div>
+      <div class="room-actions">
+        {% if puede_editar and h.estado != 'OCUPADA' %}
+          {% if h.estado == 'DISPONIBLE' %}
+            <a class="btn-secondary-app" href="{% url 'habitaciones' %}?accion=cambiar_estado&pk={{ h.pk }}&estado_nuevo=MANTENIMIENTO&{% if q_actual %}q={{ q_actual }}&{% endif %}{% if tipo_actual %}tipo={{ tipo_actual }}&{% endif %}">Mantenimiento</a>
+          {% else %}
+            <a class="btn-secondary-app" href="{% url 'habitaciones' %}?accion=cambiar_estado&pk={{ h.pk }}&estado_nuevo=DISPONIBLE&{% if q_actual %}q={{ q_actual }}&{% endif %}{% if tipo_actual %}tipo={{ tipo_actual }}&{% endif %}">Disponible</a>
+          {% endif %}
+        {% endif %}
+        <a class="btn-secondary-app" href="{% url 'disponibilidad' %}">Disponibilidad</a>
+      </div>
+    </div>
+  </article>
+{% empty %}
+  <article class="panel">
+    <div class="empty">No hay habitaciones que coincidan con el filtro.</div>
+  </article>
+{% endfor %}
+</div>
+{% endblock %}

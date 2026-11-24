@@ -1,0 +1,82 @@
+{% extends 'inc/base.html' %}
+{% block title %}Usuarios y roles{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="eyebrow">Administración</div>
+    <h1>Usuarios y roles</h1>
+    <p>Crea cuentas, asigna roles y activa o desactiva el acceso al sistema.</p>
+  </div>
+</div>
+
+<div class="layout-2">
+  <article class="panel">
+    <div class="panel-body">
+      <div class="form-section">
+        <h2>Nuevo usuario</h2>
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <div class="form-grid">
+            <div class="field"><label>Usuario</label>{{ form.username }}{{ form.username.errors }}</div>
+            <div class="field"><label>Nombres</label>{{ form.first_name }}{{ form.first_name.errors }}</div>
+            <div class="field"><label>Apellidos</label>{{ form.last_name }}{{ form.last_name.errors }}</div>
+            <div class="field"><label>Correo</label>{{ form.email }}{{ form.email.errors }}</div>
+            <div class="field"><label>Teléfono</label>{{ form.telefono }}{{ form.telefono.errors }}</div>
+            <div class="field"><label>Rol</label>{{ form.rol }}{{ form.rol.errors }}</div>
+            <div class="field"><label>Contraseña</label>{{ form.password }}{{ form.password.errors }}</div>
+          </div>
+          <div class="d-flex justify-content-end mt-3">
+            <button class="btn-primary-app" type="submit">Crear usuario</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </article>
+</div>
+
+<article class="panel mt-4">
+  <div class="table-wrap">
+    <table class="app-table" id="usuariosTable">
+      <thead>
+        <tr><th>Usuario</th><th>Nombre completo</th><th>Correo</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr>
+      </thead>
+      <tbody>
+      {% for u in usuarios_lista %}
+        <tr>
+          <td><strong>{{ u.username }}</strong></td>
+          <td>{{ u.get_full_name|default:"—" }}</td>
+          <td>{{ u.email }}</td>
+          <td>
+            <form method="get" class="d-flex gap-2 align-items-center" style="min-width:220px">
+              <input type="hidden" name="accion" value="rol">
+              <input type="hidden" name="pk" value="{{ u.pk }}">
+              <select class="form-select form-select-sm" name="rol" onchange="this.form.submit()">
+                {% for rol in roles %}
+                  <option value="{{ rol.nombre }}" {% if u.rol.nombre == rol.nombre %}selected{% endif %}>{{ rol.get_nombre_display }}</option>
+                {% endfor %}
+              </select>
+            </form>
+          </td>
+          <td>
+            {% if u.is_active %}
+              <span class="badge-app confirmed">Activo</span>
+            {% else %}
+              <span class="badge-app cancelled">Inactivo</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if u.pk == request.user.pk %}
+              <small class="text-secondary">Tu cuenta</small>
+            {% elif u.is_active %}
+              <a class="btn-secondary-app" href="{% url 'usuarios' %}?accion=desactivar&pk={{ u.pk }}">Desactivar</a>
+            {% else %}
+              <a class="btn-secondary-app" href="{% url 'usuarios' %}?accion=activar&pk={{ u.pk }}">Activar</a>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</article>
+{% endblock %}

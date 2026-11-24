@@ -1,0 +1,79 @@
+{% extends 'publico/base_publico.html' %}
+{% load static imagenes %}
+{% block title %}{{ alojamiento.nombre|default:"Guajira Serena" }}{% endblock %}
+{% block body_class %}hotel-home-immersive{% endblock %}
+{% block content %}
+<section class="hotel-cinema" id="portada" aria-roledescription="carrusel" aria-label="Presentación del alojamiento" tabindex="0">
+ <h1 class="visually-hidden">{{ alojamiento.nombre|default:"Guajira Serena" }}: alojamiento y experiencias</h1>
+ <div class="cinema-track">
+ {% for slide in hero_media %}
+  <article class="cinema-slide{% if forloop.first %} is-active{% endif %}" id="escena-{{ forloop.counter }}" aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}" {% if not forloop.first %}inert{% endif %} data-slide-label="{{ slide.etiqueta }}">
+   {% if slide.tipo == 'video' %}
+    <video class="cinema-media" muted playsinline loop preload="none" poster="{% static slide.poster %}" aria-hidden="true" data-video-src="{% static slide.archivo %}"></video>
+   {% elif slide.tipo == 'imagen_real' %}
+    <img class="cinema-media" src="{{ slide.archivo }}" alt="{{ slide.nota }}" width="1600" height="1000" fetchpriority="high">
+   {% else %}
+    <img class="cinema-media" src="{% static slide.archivo %}" alt="{{ slide.nota }}" width="1536" height="1024" {% if not forloop.first %}loading="lazy"{% endif %}>
+   {% endif %}
+   <div class="cinema-shade"></div>
+   <div class="cinema-copy hotel-container">
+    <span class="hotel-kicker">{{ slide.etiqueta }}</span>
+    <h2>{{ slide.titulo|linebreaksbr }}</h2>
+    <p>{{ slide.texto }}</p>
+    <a class="cinema-link" href="{{ slide.ancla }}">{{ slide.accion }} <span aria-hidden="true">↗</span></a>
+   </div>
+   <small class="cinema-disclosure">{{ slide.nota }}</small>
+  </article>
+ {% endfor %}
+ </div>
+ <div class="cinema-pagination" aria-label="Elegir escena">{% for slide in hero_media %}<button type="button" data-slide-index="{{ forloop.counter0 }}" aria-label="Escena {{ forloop.counter }}: {{ slide.etiqueta }}" aria-controls="escena-{{ forloop.counter }}" {% if forloop.first %}aria-current="true"{% endif %}><span>{{ forloop.counter|stringformat:"02d" }}</span><i aria-hidden="true"></i></button>{% endfor %}</div>
+ <div class="cinema-bottom">
+  <a href="#nosotros" class="cinema-scroll">Descubre Guajira Serena <span aria-hidden="true">↓</span></a>
+  <div class="cinema-controls"><button type="button" data-cinema-action="prev" aria-label="Escena anterior">↑</button><button type="button" data-cinema-action="next" aria-label="Escena siguiente">↓</button><button type="button" data-cinema-action="pause" aria-label="Pausar presentación" aria-pressed="false">Pausar</button></div>
+ </div>
+ <span class="visually-hidden" id="cinema-status" role="status" aria-live="polite"></span>
+</section>
+<div class="hotel-container">
+ <form class="hotel-booking" method="get" action="{% url 'disponibilidad' %}" id="buscar-estancia">
+  <div><label for="public-entrada">Llegada</label><input id="public-entrada" name="fecha_entrada" type="date" min="{{ hoy|date:'Y-m-d' }}" required></div>
+  <div><label for="public-salida">Salida</label><input id="public-salida" name="fecha_salida" type="date" min="{{ hoy|date:'Y-m-d' }}" required></div>
+  <div><label for="public-personas">Huéspedes</label><input id="public-personas" name="huespedes" type="number" min="1" max="30" value="2" required></div>
+  <button class="hotel-btn" type="submit">Consultar disponibilidad</button>
+  <small>Para continuar con tu reserva, inicia sesión o crea tu cuenta.</small>
+ </form>
+ <section class="hotel-about" id="nosotros">
+  <div class="hotel-about-heading"><span class="hotel-kicker">CONOCE GUAJIRA SERENA</span><h2>{{ presentacion.titulo }}</h2><p>{{ presentacion.descripcion }}</p></div>
+  <div class="hotel-about-grid"><div class="hotel-about-image">{% if foto_real %}<img src="{{ foto_real.imagen.url }}" alt="{{ foto_real.texto_alternativo }}" width="900" height="700" loading="lazy">{% else %}<img src="{% static 'img/alojamiento.jpg' %}" alt="Representación ilustrativa de una posada costera" width="900" height="700" loading="lazy"><small>Imagen ilustrativa generada con IA.</small>{% endif %}</div><div><span class="hotel-kicker">NUESTRA PROPUESTA</span><h3>Información clara.<br>Una visita a tu medida.</h3><p>{{ presentacion.proposito }}</p>{% if alojamiento.descripcion %}<p>{{ alojamiento.descripcion }}</p>{% endif %}<a class="hotel-text-link" href="#ubicacion">Hablemos de tu visita ↗</a></div></div>
+  <div class="hotel-values"><article><span>01</span><h3>Elige con claridad</h3><p>Consulta los tipos de habitación, la capacidad y la tarifa publicada antes de decidir.</p></article><article><span>02</span><h3>Organiza tu estancia</h3><p>Crea tu cuenta para reservar, revisar el estado de tu solicitud y consultar tus próximas visitas.</p></article><article><span>03</span><h3>Descubre el entorno</h3><p>Conoce los destinos registrados y pregunta por las condiciones de cada recorrido.</p></article></div>
+ </section>
+ <section class="hotel-section" id="habitaciones">
+  <div class="hotel-section-head"><div><span class="hotel-kicker">ESPACIOS PARA DESCONECTAR</span><h2>Tu habitación, a tu ritmo.</h2></div><a class="hotel-text-link" href="#buscar-estancia">Consulta fechas <span aria-hidden="true">↗</span></a></div>
+  <div class="hotel-rooms">
+  {% for t in tipos %}
+   <article class="hotel-room">
+    <div class="hotel-room-photo"><img src="{{ t.nombre|foto_habitacion }}" alt="Imagen ilustrativa de habitación {{ t.nombre }}" width="720" height="480" loading="lazy"><span>Imagen ilustrativa</span></div>
+    <div class="hotel-room-title"><h3>{{ t.nombre }}</h3><span>Hasta {{ t.capacidad_max }} personas</span></div>
+    <p>{{ t.descripcion|default:"Una opción para tu próxima estancia." }}</p>
+    <p class="hotel-room-description">{{ t.detalle_publico }}</p>
+    <div class="hotel-room-bottom"><span>Desde <strong>{{ t.precio_min|moneda_cop }}</strong> / noche</span><a class="hotel-text-link" href="{% url 'nueva_reserva' %}">Reservar ↗</a></div>
+   </article>
+  {% empty %}<p>Estamos actualizando las habitaciones. Contáctanos para conocer las opciones de alojamiento.</p>{% endfor %}
+  </div>
+ </section>
+</div>
+<section class="hotel-services-wrap" id="servicios">
+ <div class="hotel-container hotel-section">
+  <div class="hotel-section-head"><div><span class="hotel-kicker">COMPLETA TU EXPERIENCIA</span><h2>Detalles que hacen<br>más fácil tu estancia.</h2></div><p>Consulta con recepción la disponibilidad de los servicios adicionales.</p></div>
+  <div class="hotel-services">{% for s in servicios %}<article><span class="hotel-service-index">{{ forloop.counter|stringformat:"02d" }}</span><h3>{{ s.nombre }}</h3>{% if s.descripcion %}<p>{{ s.descripcion }}</p>{% endif %}<p>{{ s.detalle_publico }}</p><strong>{{ s.precio|moneda_cop }}</strong><small class="hotel-muted">Confirma la unidad de cobro con recepción.</small></article>{% empty %}<p>Consulta los servicios disponibles directamente con el alojamiento.</p>{% endfor %}</div>
+ </div>
+</section>
+<div class="hotel-container">
+ <section class="hotel-section" id="destinos">
+  <div class="hotel-section-head"><div><span class="hotel-kicker">MÁS ALLÁ DEL ALOJAMIENTO</span><h2>Un destino para descubrir.</h2></div><p>{{ alojamiento.informacion_turistica|default:"Consulta con nuestro equipo las alternativas para recorrer la región." }}</p></div>
+  <div class="tour-grid hotel-tours">{% for s in sitios %}<article class="tour-card"><img src="{{ s.nombre|foto_sitio }}" alt="Paisaje ilustrativo para {{ s.nombre }}; no es fotografía documental" width="720" height="480" loading="lazy"><div><h3>{{ s.nombre }}</h3><p>{{ s.descripcion }}</p>{% if s.distancia_km != None %}<small>Distancia registrada: {{ s.distancia_km }} km</small>{% endif %}<small class="hotel-muted">Imagen ilustrativa. Consulta condiciones de visita.</small></div></article>{% empty %}<div class="hotel-destination-empty"><img src="{% static 'img/sitios/paisaje-guajira.jpg' %}" alt="Paisaje costero ilustrativo inspirado en La Guajira" width="1000" height="600" loading="lazy"><div><h3>La región te espera</h3><p>El alojamiento aún no ha registrado sitios turísticos. Pregunta en recepción por recomendaciones.</p><small>Imagen ilustrativa generada con IA.</small></div></div>{% endfor %}</div>
+ </section>
+ <section class="hotel-planning hotel-section" id="tu-visita"><div><span class="hotel-kicker">ANTES DE VIAJAR</span><h2>Tu visita, paso a paso.</h2><p>La reserva empieza con tus fechas. Si tienes necesidades especiales, consulta con el alojamiento antes de confirmar.</p><a class="hotel-btn" href="#buscar-estancia">Consultar fechas</a></div><ol><li><h3>Encuentra tu habitación</h3><p>Elige llegada, salida y número de personas. Revisa las opciones disponibles para esa estancia.</p></li><li><h3>Crea tu cuenta y reserva</h3><p>Registra tus datos, completa la solicitud y consulta su estado en Mis reservas.</p></li><li><h3>Confirma los detalles</h3><p>Contacta con recepción para coordinar servicios adicionales y resolver dudas sobre tu llegada.</p></li></ol></section>
+ <section class="hotel-faq hotel-section" id="preguntas"><div class="hotel-section-head"><div><span class="hotel-kicker">RESOLVEMOS TUS DUDAS</span><h2>Antes de reservar.</h2></div></div><details><summary>¿Qué información necesito para reservar?</summary><p>Tus datos de identificación y contacto, las fechas de llegada y salida y el número de huéspedes. La cuenta te permitirá consultar el estado de la reserva.</p></details><details><summary>¿Los servicios adicionales están incluidos?</summary><p>Los servicios se muestran con su precio registrado. Consulta con recepción las inclusiones de tu tarifa y las condiciones de cada servicio; no asumas que todos están incluidos.</p></details><details><summary>¿Cuáles son los horarios de entrada y salida?</summary><p>La entrada está registrada a las {{ alojamiento.hora_checkin|time:"H:i"|default:"15:00" }} y la salida a las {{ alojamiento.hora_checkout|time:"H:i"|default:"12:00" }}. Si necesitas otro horario, consulta disponibilidad con el alojamiento.</p></details><details><summary>¿Puedo solicitar la cancelación de una reserva?</summary><p>Desde Mis reservas puedes enviar una solicitud de cancelación cuando el estado lo permite. El personal la revisará; esto no implica cancelación automática ni una política de devolución específica.</p></details></section>
+ <section class="hotel-contact" id="ubicacion"><div><span class="hotel-kicker">PLANEA TU VISITA</span><h2>Hablemos de tu próxima estancia.</h2><p>{{ alojamiento.municipio|default:"La Guajira" }}</p></div><dl><div><dt>Dirección</dt><dd>{{ alojamiento.direccion|default:"Por confirmar" }}</dd></div><div><dt>Teléfono</dt><dd>{% if alojamiento.telefono %}<a href="tel:{{ alojamiento.telefono }}">{{ alojamiento.telefono }}</a>{% else %}Por confirmar{% endif %}</dd></div><div><dt>Correo</dt><dd>{% if alojamiento.correo %}<a href="mailto:{{ alojamiento.correo }}">{{ alojamiento.correo }}</a>{% else %}Por confirmar{% endif %}</dd></div><div><dt>Horarios</dt><dd>Entrada {{ alojamiento.hora_checkin|time:"H:i" }} · Salida {{ alojamiento.hora_checkout|time:"H:i" }}</dd></div></dl></section>
+</div>
+{% endblock %}

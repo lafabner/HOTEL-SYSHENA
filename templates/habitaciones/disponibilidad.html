@@ -1,0 +1,57 @@
+{% extends 'inc/base.html' %}
+{% load imagenes %}
+{% block title %}Disponibilidad{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="eyebrow">Reservas</div>
+    <h1>Consultar disponibilidad</h1>
+    <p>Verifica fechas y capacidad antes de asignar una habitación.</p>
+  </div>
+</div>
+
+<form class="filterbar" method="get" novalidate>
+  <div class="field"><label for="fIn">Entrada</label>{{ form.fecha_entrada }}</div>
+  <div class="field"><label for="fOut">Salida</label>{{ form.fecha_salida }}</div>
+  <div class="field"><label for="people">Huéspedes</label>{{ form.huespedes }}</div>
+  <div class="field"><label for="kind">Tipo</label>{{ form.tipo_habitacion }}</div>
+  <button class="btn-primary-app" type="submit">Buscar</button>
+</form>
+
+{% if es_valido %}
+  <div class="alert-app">
+    {% if total %}
+      {{ total }} habitació{{ total|pluralize:"n,nes" }} cumple{{ total|pluralize:"n," }} las fechas y la capacidad solicitadas.
+    {% else %}
+      No hay habitaciones disponibles para las fechas y la capacidad solicitadas.
+    {% endif %}
+  </div>
+
+  {% if total %}
+    <div class="room-grid">
+    {% for h in habitaciones %}
+      <article class="room-card">
+        <div class="room-foto" data-habitacion="{{ h.pk }}">
+          <img src="{{ h.tipo_habitacion.nombre|foto_habitacion }}" alt="Imagen ilustrativa de habitación {{ h.tipo_habitacion.nombre }}" width="720" height="480" loading="lazy">
+        </div>
+        <div class="room-body">
+          <div class="room-title"><h3>Habitación {{ h.numero }}</h3><span class="badge-app available">Disponible</span></div>
+          <div class="room-meta"><span>{{ h.tipo_habitacion.nombre }}</span><span>{{ h.capacidad }} persona{{ h.capacidad|pluralize }}</span><span>Piso {{ h.piso|default:"—" }}</span></div>
+          <div class="price">{{ h.precio_noche|moneda_cop }} / noche</div>
+          <div class="room-actions">
+            <a class="btn-secondary-app" href="#">Ver detalle</a>
+            <a class="btn-primary-app" href="{% url 'nueva_reserva' %}?habitacion={{ h.pk }}&entrada={{ ingreso|date:'Y-m-d' }}&salida={{ salida|date:'Y-m-d' }}&huespedes={{ huespedes_buscados }}">Reservar</a>
+          </div>
+        </div>
+      </article>
+    {% endfor %}
+    </div>
+  {% endif %}
+{% else %}
+  {% if form.is_bound %}
+    <div class="alert-app danger" role="alert">
+      {% for errores in form.errors.values %}{% for e in errores %}{{ e }}{% endfor %}{% endfor %}
+    </div>
+  {% endif %}
+{% endif %}
+{% endblock %}

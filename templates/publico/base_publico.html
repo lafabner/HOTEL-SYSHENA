@@ -1,0 +1,55 @@
+{% load static %}<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="{% block descripcion %}Conoce el alojamiento, sus habitaciones, servicios y destinos. Crea tu cuenta y organiza tu reserva.{% endblock %}">
+  <title>{% block title %}Guajira Serena{% endblock %} · SysHSENA</title>
+  <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700&f[]=boska@400,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/publico.css' %}">
+  <link rel="stylesheet" href="{% static 'css/portada.css' %}?v=19">
+  <script src="{% static 'js/validaciones.js' %}" defer></script>
+  <script src="{% static 'js/publico.js' %}?v=19" defer></script>
+</head>
+<body class="hotel-publico {% block body_class %}{% endblock %}">
+<a class="skip" href="#main">Saltar al contenido</a>
+<header class="hotel-header">
+ <div class="hotel-container hotel-header-inner">
+  <a class="hotel-brand" href="{% url 'inicio' %}" aria-label="Guajira Serena, inicio">
+   <svg viewBox="0 0 48 48" width="40" height="40" aria-hidden="true"><path d="M6 30c7-10 13-15 20-15 6 0 10 3 16 9M7 36c7-6 13-9 20-9 6 0 10 2 14 5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="34" cy="10" r="3" fill="#b85f39"/></svg>
+   <span>Guajira Serena<small>ALOJAMIENTO · LA GUAJIRA</small></span>
+  </a>
+  <button class="hotel-menu-toggle" aria-controls="hotel-nav" aria-expanded="false" type="button">Menú</button>
+  <nav class="hotel-nav" id="hotel-nav" aria-label="Navegación principal">
+   <a href="{% url 'inicio' %}#habitaciones">Habitaciones</a>
+   <a href="{% url 'inicio' %}#nosotros">Nosotros</a>
+   <a href="{% url 'inicio' %}#servicios">Servicios</a>
+   <a href="{% url 'inicio' %}#destinos">Descubre La Guajira</a>
+   {% if request.user.is_authenticated %}
+    <a href="{% url 'inicio' %}?panel=1" class="hotel-btn hotel-btn-outline">Mi panel</a>
+   {% else %}
+    <a href="{% url 'login' %}">Iniciar sesión</a>
+    <a class="hotel-btn" href="{% url 'registro' %}">Crear cuenta</a>
+   {% endif %}
+  </nav>
+  <a class="hotel-header-book" href="{% url 'inicio' %}#buscar-estancia">Reservar</a>
+ </div>
+</header>
+<main id="main">
+ {% if messages %}<div class="hotel-container hotel-messages" aria-live="polite">{% for message in messages %}<div class="alert-app {{ message.tags }}">{{ message }}</div>{% endfor %}</div>{% endif %}
+ {% block content %}{% endblock %}
+</main>
+<footer class="hotel-footer">
+ <div class="hotel-container hotel-footer-top">
+  <div><a class="hotel-brand" href="{% url 'inicio' %}">Guajira Serena</a><p>Un lugar para descansar.<br>Un punto de partida para descubrir.</p></div>
+  <div><h2>Tu estancia</h2><a href="{% url 'inicio' %}#habitaciones">Habitaciones</a><a href="{% url 'inicio' %}#servicios">Servicios</a><a href="{% url 'inicio' %}#ubicacion">Contacto</a></div>
+  <div><h2>Tu cuenta</h2><a href="{% url 'registro' %}">Registrarte</a><a href="{% url 'login' %}">Iniciar sesión</a><a href="{% url 'password_reset' %}">Recuperar contraseña</a></div>
+ </div>
+ <div class="hotel-container hotel-footer-bottom"><span>© {% now "Y" %} SysHSENA · Guajira Serena</span><span>Proyecto académico de hospedaje</span></div>
+</footer>
+</body>
+</html>

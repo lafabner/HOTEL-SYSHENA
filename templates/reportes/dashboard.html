@@ -1,0 +1,82 @@
+{% extends 'inc/base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="eyebrow">{% now "l, j \d\e F" %}</div>
+    <h1>Estado de la operación</h1>
+    <p>Indicadores principales de Posada Guajira Serena.</p>
+  </div>
+  <div class="actions">
+    <a class="btn-secondary-app" href="{% url 'reportes' %}">Ver reportes</a>
+    {% if puede_crear_reserva %}<a class="btn-primary-app" href="{% url 'nueva_reserva' %}">＋ Nueva reserva</a>{% endif %}
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <article class="kpi"><div class="kpi-top"><span>Habitaciones totales</span><i class="status-dot"></i></div><strong>{{ hab_total }}</strong><small>Inventario activo</small></article>
+  <article class="kpi"><div class="kpi-top"><span>Disponibles</span><i class="status-dot" style="background:var(--success)"></i></div><strong>{{ hab_disponibles }}</strong><small>Listas para reservar</small></article>
+  <article class="kpi"><div class="kpi-top"><span>Ocupadas</span><i class="status-dot" style="background:var(--accent)"></i></div><strong>{{ hab_ocupadas }}</strong><small>Estadías en curso</small></article>
+  <article class="kpi"><div class="kpi-top"><span>Ocupación</span><i class="status-dot" style="background:var(--warning)"></i></div><strong>{{ ocupacion }}%</strong><small>{{ hab_ocupadas }} de {{ hab_total }} habitaciones</small></article>
+  <article class="kpi"><div class="kpi-top"><span>Reservas activas</span><i class="status-dot"></i></div><strong>{{ reservas_activas }}</strong><small>Pendientes y confirmadas</small></article>
+  <article class="kpi"><div class="kpi-top"><span>Reservas del día</span><i class="status-dot"></i></div><strong>{{ reservas_dia }}</strong><small>{{ llegadas }} llegada{{ llegadas|pluralize }} · {{ salidas }} salida{{ salidas|pluralize }}</small></article>
+  <article class="kpi"><div class="kpi-top"><span>Huéspedes</span><i class="status-dot"></i></div><strong>{{ huespedes }}</strong><small>Registros acumulados</small></article>
+  <article class="kpi"><div class="kpi-top"><span>Ingresos del mes</span><i class="status-dot" style="background:var(--success)"></i></div><strong>{{ ingresos_mes }}</strong><small>Pagos registrados</small></article>
+</div>
+
+<div class="layout-2">
+  <article class="panel">
+    <div class="panel-head"><h2>Ingresos últimos 7 días</h2><span class="badge-app confirmed">{{ ingresos_7_dias }}</span></div>
+    <div class="panel-body chart-space">
+      <div class="chart" role="img" aria-label="Gráfico de barras con los ingresos de los últimos 7 días">
+        {% for b in barras %}
+        <div class="bar-wrap" title="{{ b.etiqueta }}: {{ b.texto }}">
+          <div class="bar" style="--h:{{ b.altura }}%"></div>
+          <span class="bar-label"{% if b.hoy %} style="color:var(--primary);font-weight:700"{% endif %}>{{ b.etiqueta }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </article>
+
+  <article class="panel">
+    <div class="panel-head"><h2>Estado de habitaciones</h2></div>
+    <div class="panel-body">
+      <div class="donut" role="img" aria-label="Ocupación: {{ ocupacion }} por ciento"
+           data-label="{{ ocupacion_entera }}%&#10;ocupación"
+           style="background:conic-gradient(var(--primary) 0 {{ dona_ocupadas }}%,var(--warning) {{ dona_ocupadas }}% {{ dona_mantenimiento }}%,var(--surface-dynamic) {{ dona_mantenimiento }}%)"></div>
+      <div class="legend">
+        <span><i style="background:var(--primary)"></i>Ocupadas ({{ hab_ocupadas }})</span>
+        <span><i style="background:var(--warning)"></i>Mantenimiento ({{ hab_mantenimiento }})</span>
+        <span><i style="background:var(--surface-dynamic)"></i>Disponibles ({{ hab_disponibles }})</span>
+      </div>
+    </div>
+  </article>
+</div>
+
+<article class="panel" style="margin-top:18px">
+  <div class="panel-head"><h2>Reservas recientes</h2><a class="btn-secondary-app" href="{% url 'reservas' %}">Ver todas</a></div>
+  <div class="table-wrap">
+    <table class="app-table">
+      <thead><tr><th>Código</th><th>Huésped</th><th>Habitación</th><th>Entrada</th><th>Salida</th><th>Estado</th><th>Saldo</th></tr></thead>
+      <tbody>
+      {% for r in recientes %}
+        <tr>
+          <td><strong>{{ r.codigo }}</strong></td>
+          <td>{{ r.huesped.nombres }} {{ r.huesped.apellidos }}</td>
+          <td>{{ r.habitacion.numero }}</td>
+          <td>{{ r.fecha_entrada|date:"d/m/Y" }}</td>
+          <td>{{ r.fecha_salida|date:"d/m/Y" }}</td>
+          <td>
+            <span class="badge-app {% if r.estado == 'CONFIRMADA' %}confirmed{% elif r.estado == 'PENDIENTE' %}pending{% elif r.estado == 'EN_ESTADIA' %}occupied{% elif r.estado == 'FINALIZADA' %}available{% else %}cancelled{% endif %}">{{ r.get_estado_display }}</span>
+          </td>
+          <td>${{ r.saldo_pendiente|floatformat:0 }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="7"><div class="empty">Aún no hay reservas registradas.</div></td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</article>
+{% endblock %}

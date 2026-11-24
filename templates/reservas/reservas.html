@@ -1,0 +1,112 @@
+{% extends 'inc/base.html' %}
+{% block title %}Reservas{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="eyebrow">Gestión</div>
+    <h1>Reservas</h1>
+    <p>Consulta, filtra y gestiona el ciclo de las reservas.</p>
+  </div>
+  <div class="actions">
+    <a class="btn-primary-app" href="{% url 'nueva_reserva' %}">＋ Nueva reserva</a>
+  </div>
+</div>
+
+<form class="filterbar" method="get" novalidate>
+  <div class="field search-wide">
+    <label for="rq">Buscar</label>
+    <input class="form-control table-search" data-table="reservasTable" id="rq"
+           name="q" value="{{ q_actual }}" placeholder="Código, huésped o documento">
+  </div>
+  <div class="field">
+    <label for="restado">Estado</label>
+    <select class="form-select" id="restado" name="estado">
+      <option value="">Todos</option>
+      {% for valor, texto in estados %}<option value="{{ valor }}"{% if estado_actual == valor %} selected{% endif %}>{{ texto }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="field">
+    <label for="rdesde">Desde</label>
+    <input class="form-control" id="rdesde" type="date" name="desde" value="{{ desde_actual }}">
+  </div>
+  <div class="field">
+    <label for="rhab">Habitación</label>
+    <input class="form-control" id="rhab" type="text" name="habitacion" value="{{ habitacion_actual }}" placeholder="Número">
+  </div>
+  <button class="btn-secondary-app" type="submit">Aplicar</button>
+  <a class="btn-secondary-app" href="{% url 'reservas' %}">Limpiar</a>
+</form>
+
+{% if solicitudes %}
+<article class="panel mb-4">
+  <div class="panel-body">
+    <h2 class="h5 mb-3">Solicitudes de cancelación pendientes</h2>
+    <div class="table-wrap">
+      <table class="app-table" id="solicitudesTable">
+        <thead>
+          <tr><th>Reserva</th><th>Huésped</th><th>Solicitada por</th><th>Motivo</th><th>Acciones</th></tr>
+        </thead>
+        <tbody>
+        {% for s in solicitudes %}
+          <tr>
+            <td><strong>{{ s.reserva.codigo }}</strong></td>
+            <td>{{ s.reserva.huesped.nombres }} {{ s.reserva.huesped.apellidos }}</td>
+            <td>{{ s.solicitada_por.username }} · {{ s.fecha_solicitud|date:"j M Y H:i" }}</td>
+            <td>{{ s.motivo|truncatechars:80 }}</td>
+            <td class="d-flex gap-2">
+              <a class="btn-secondary-app" href="#" onclick="return confirm('¿Aprobar la solicitud y cancelar la reserva {{ s.reserva.codigo }}?')&&(location.href='{% url 'reservas' %}?accion=aprobar_solicitud&pk={{ s.pk }}',false)">Aprobar y cancelar</a>
+              <a class="btn-secondary-app" href="#" onclick="var r=prompt('Respuesta para el cliente:');if(r){location.href='{% url 'reservas' %}?accion=rechazar_solicitud&pk={{ s.pk }}&respuesta='+encodeURIComponent(r);}return false">Rechazar</a>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</article>
+{% endif %}
+
+<article class="panel">
+  <div class="table-wrap">
+    <table class="app-table" id="reservasTable">
+      <thead>
+        <tr><th>Código</th><th>Huésped</th><th>Habitación</th><th>Fechas</th><th>Total</th><th>Estado</th><th>Acciones</th></tr>
+      </thead>
+      <tbody>
+      {% for r in reservas %}
+        <tr>
+          <td><strong>{{ r.codigo }}</strong></td>
+          <td>{{ r.huesped.nombres }} {{ r.huesped.apellidos }}<br><small>{{ r.huesped.tipo_documento }} {{ r.huesped.numero_documento }}</small></td>
+          <td>{{ r.habitacion.numero }} · {{ r.habitacion.tipo_habitacion.nombre }}</td>
+          <td>{{ r.fecha_entrada|date:"j M" }} – {{ r.fecha_salida|date:"j M Y" }}</td>
+          <td>${{ r.valor_total|floatformat:"0" }}</td>
+          <td>
+            <span class="badge-app {% if r.estado == 'CONFIRMADA' %}confirmed{% elif r.estado == 'PENDIENTE' %}pending{% elif r.estado == 'EN_ESTADIA' %}occupied{% elif r.estado == 'FINALIZADA' %}available{% else %}cancelled{% endif %}">{{ r.get_estado_display }}</span>
+          </td>
+          <td>
+            {% if r.estado == 'PENDIENTE' %}
+              <a class="btn-secondary-app" href="{% url 'reservas' %}?accion=confirmar&pk={{ r.pk }}{% if q_actual %}&q={{ q_actual }}{% endif %}{% if estado_actual %}&estado={{ estado_actual }}{% endif %}">Confirmar</a>
+            {% endif %}
+            {% if r.estado == 'PENDIENTE' or r.estado == 'CONFIRMADA' %}
+              <a class="btn-secondary-app" href="{% url 'reservas' %}?accion=cancelar&pk={{ r.pk }}&motivo={{ r.codigo }}" data-motivo-pendiente>Cancelar</a>
+            {% endif %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="7"><div class="empty">No hay reservas que coincidan con el filtro.</div></td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if is_paginated %}
+  <div class="pagination-app">
+    <span>Mostrando {{ page_obj.start_index }}–{{ page_obj.end_index }} de {{ paginator.count }} reserva{{ paginator.count|pluralize }}</span>
+    <div>
+      {% if page_obj.has_previous %}<a class="btn-secondary-app" href="?page={{ page_obj.previous_page_number }}{% if q_actual %}&q={{ q_actual }}{% endif %}{% if estado_actual %}&estado={{ estado_actual }}{% endif %}">Anterior</a>{% endif %}
+      {% if page_obj.has_next %}<a class="btn-secondary-app" href="?page={{ page_obj.next_page_number }}{% if q_actual %}&q={{ q_actual }}{% endif %}{% if estado_actual %}&estado={{ estado_actual }}{% endif %}">Siguiente</a>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+</article>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends 'inc/base.html' %}
+{% block title %}Reportes{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="eyebrow">Información gerencial</div>
+    <h1>Reportes</h1>
+    <p>Reservas, ocupación, ingresos, huéspedes y servicios vendidos.</p>
+  </div>
+</div>
+
+<form class="filterbar" method="get">
+  <div class="field"><label for="rdesde">Desde</label>
+    <input class="form-control" type="date" id="rdesde" name="desde" value="{{ desde|date:'Y-m-d' }}"></div>
+  <div class="field"><label for="rhasta">Hasta</label>
+    <input class="form-control" type="date" id="rhasta" name="hasta" value="{{ hasta|date:'Y-m-d' }}"></div>
+  <button class="btn-primary-app" type="submit">Generar</button>
+</form>
+
+{% if error %}
+  <div class="alert-app danger" role="alert">La fecha inicial no puede ser posterior a la final.</div>
+{% endif %}
+
+{% if datos %}
+<div class="layout-2" style="margin-top:18px">
+  <article class="panel">
+    <div class="panel-head"><h2>Ingresos del periodo</h2></div>
+    <div class="panel-body chart-space">
+      <div class="chart" role="img" aria-label="Ingresos por semana">
+        {% for b in datos.barras %}
+          <div class="bar-wrap" title="{{ b.etiqueta }}: {{ b.texto }}">
+            <div class="bar" style="--h:{{ b.altura }}%"></div>
+            <span class="bar-label">{{ b.etiqueta }}</span>
+          </div>
+        {% empty %}
+          <div class="empty">Sin pagos en el periodo.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </article>
+
+  <article class="panel">
+    <div class="panel-head"><h2>Totales</h2></div>
+    <div class="panel-body">
+      <div class="summary-row"><span>Total recaudado</span><strong>{{ datos.total_recaudado }}</strong></div>
+      <div class="summary-row"><span>Pagos registrados</span><strong>{{ datos.n_pagos }}</strong></div>
+      <div class="summary-row"><span>Saldos pendientes</span><strong>{{ datos.saldos_pendientes }}</strong></div>
+      <div class="summary-row"><span>Ocupación media</span><strong>{{ datos.ocupacion_media }}%</strong></div>
+      <div class="summary-row"><span>Reservas creadas</span><strong>{{ datos.n_reservas }}</strong></div>
+      <div class="summary-row"><span>Huéspedes registrados</span><strong>{{ datos.n_huespedes }}</strong></div>
+    </div>
+  </article>
+</div>
+
+<article class="panel" style="margin-top:18px">
+  <div class="panel-head"><h2>Servicios vendidos en el periodo</h2></div>
+  <div class="table-wrap">
+    <table class="app-table">
+      <thead><tr><th>Servicio</th><th>Cantidad</th><th>Total</th></tr></thead>
+      <tbody>
+      {% for s in datos.servicios_vendidos %}
+        <tr><td>{{ s.nombre }}</td><td>{{ s.cantidad }}</td><td>{{ s.total }}</td></tr>
+      {% empty %}
+        <tr><td colspan="3"><div class="empty">Sin consumos en el periodo.</div></td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</article>
+{% endif %}
+{% endblock %}

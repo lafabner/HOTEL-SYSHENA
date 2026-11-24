@@ -1,0 +1,39 @@
+{% extends 'publico/base_publico.html' %}
+{% block title %}Crear cuenta{% endblock %}
+{% block content %}
+<div class="public-shell">
+  <section class="public-section" style="max-width:760px;margin:0 auto">
+    <span class="eyebrow">Clientes</span>
+    <h2 style="font-size:clamp(26px,2.4vw,32px);margin:4px 0 6px">Crea tu cuenta</h2>
+    <p style="color:var(--muted);margin:0 0 24px">Con tu cuenta puedes ver tus reservas, solicitar cancelaciones y crear reservas nuevas.</p>
+
+    {% if form.non_field_errors %}
+      <div class="alert-app error" role="alert">
+        {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+      </div>
+    {% endif %}
+
+    <article class="panel">
+      <div class="panel-body">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <div class="form-grid">
+            <div class="field"><label>{{ form.nombres.label }}</label>{{ form.nombres }}{{ form.nombres.errors }}</div>
+            <div class="field"><label>{{ form.apellidos.label }}</label>{{ form.apellidos }}{{ form.apellidos.errors }}</div>
+            <div class="field"><label>{{ form.tipo_documento.label }}</label>{{ form.tipo_documento }}{{ form.tipo_documento.errors }}</div>
+            <div class="field"><label>{{ form.numero_documento.label }}</label>{{ form.numero_documento }}{{ form.numero_documento.errors }}</div>
+            <div class="field"><label>{{ form.telefono.label }}</label>{{ form.telefono }}{{ form.telefono.errors }}</div>
+            <div class="field"><label>{{ form.correo.label }}</label>{{ form.correo }}{{ form.correo.errors }}</div>
+            <div class="field"><label>{{ form.password.label }}</label>{{ form.password }}{{ form.password.errors }}</div>
+            <div class="field"><label>{{ form.confirmar_password.label }}</label>{{ form.confirmar_password }}{{ form.confirmar_password.errors }}</div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:22px;gap:12px;flex-wrap:wrap">
+            <a href="{% url 'login' %}" style="color:var(--primary);font-size:14px">¿Ya tienes cuenta? Inicia sesión</a>
+            <button class="btn-primary-app" type="submit">Crear cuenta</button>
+          </div>
+        </form>
+      </div>
+    </article>
+  </section>
+</div>
+{% endblock %}

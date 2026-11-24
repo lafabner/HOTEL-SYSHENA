@@ -1,0 +1,55 @@
+{% extends 'inc/base.html' %}
+{% block title %}Configuración{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="eyebrow">Administración</div>
+    <h1>Configuración</h1>
+    <p>Datos del alojamiento que aparecen en reservas, comprobantes y reportes.</p>
+  </div>
+</div>
+
+<div class="layout-2">
+  <article class="panel">
+    <div class="panel-body">
+      <div class="form-section">
+        <h2>Información del alojamiento</h2>
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <div class="form-grid">
+            <div class="field"><label>Nombre</label>{{ form.nombre }}{{ form.nombre.errors }}</div>
+            <div class="field"><label>Municipio</label>{{ form.municipio }}{{ form.municipio.errors }}</div>
+            <div class="field"><label>Dirección</label>{{ form.direccion }}{{ form.direccion.errors }}</div>
+            <div class="field"><label>Teléfono</label>{{ form.telefono }}{{ form.telefono.errors }}</div>
+            <div class="field"><label>Correo</label>{{ form.correo }}{{ form.correo.errors }}</div>
+            <div class="field"><label>Hora de check-in</label>{{ form.hora_checkin }}{{ form.hora_checkin.errors }}</div>
+            <div class="field"><label>Hora de check-out</label>{{ form.hora_checkout }}{{ form.hora_checkout.errors }}</div>
+          </div>
+          <div class="form-section">
+            <h2>Descripción</h2>
+            {{ form.descripcion }}{{ form.descripcion.errors }}
+          </div>
+          <div class="form-section">
+            <h2>Información turística</h2>
+            {{ form.informacion_turistica }}{{ form.informacion_turistica.errors }}
+          </div>
+          <div class="d-flex justify-content-end">
+            <button class="btn-primary-app" type="submit">Guardar cambios</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </article>
+  <aside class="summary-card">
+    <div class="eyebrow">Resumen actual</div>
+    <h2 class="h5 mt-2">{{ alojamiento.nombre }}</h2>
+    <p class="text-secondary">{{ alojamiento.municipio }}</p>
+    <div class="summary-row"><span>Dirección</span><strong>{{ alojamiento.direccion }}</strong></div>
+    <div class="summary-row"><span>Teléfono</span><strong>{{ alojamiento.telefono }}</strong></div>
+    <div class="summary-row"><span>Correo</span><strong>{{ alojamiento.correo }}</strong></div>
+    <div class="summary-row"><span>Check-in</span><strong>{{ alojamiento.hora_checkin|time:"H:i" }}</strong></div>
+    <div class="summary-row"><span>Check-out</span><strong>{{ alojamiento.hora_checkout|time:"H:i" }}</strong></div>
+    <small class="d-block mt-3">Los cambios se reflejan en todo el sistema al guardar.</small>
+  </aside>
+</div>
+{% endblock %}

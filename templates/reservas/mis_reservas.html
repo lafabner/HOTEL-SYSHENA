@@ -1,0 +1,56 @@
+{% extends 'inc/base.html' %}
+{% block title %}Mis reservas{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="eyebrow">Operación</div>
+    <h1>Mis reservas</h1>
+    <p>Consulta tus reservas y solicita cancelaciones cuando lo necesites.</p>
+  </div>
+</div>
+
+<article class="panel">
+  <div class="table-wrap">
+    <table class="app-table" id="misReservasTable">
+      <thead>
+        <tr><th>Código</th><th>Habitación</th><th>Fechas</th><th>Huéspedes</th><th>Total</th><th>Estado</th><th>Acciones</th></tr>
+      </thead>
+      <tbody>
+      {% for fila in filas %}
+        {% with r=fila.reserva s=fila.solicitud %}
+        <tr>
+          <td><strong>{{ r.codigo }}</strong></td>
+          <td>{{ r.habitacion.numero }} · {{ r.habitacion.tipo_habitacion.nombre }}</td>
+          <td>{{ r.fecha_entrada|date:"j M" }} – {{ r.fecha_salida|date:"j M Y" }}</td>
+          <td>{{ r.numero_huespedes }}</td>
+          <td>${{ r.valor_total|floatformat:"0" }}</td>
+          <td>
+            <span class="badge-app {% if r.estado == 'CONFIRMADA' %}confirmed{% elif r.estado == 'PENDIENTE' %}pending{% elif r.estado == 'EN_ESTADIA' %}occupied{% elif r.estado == 'FINALIZADA' %}available{% else %}cancelled{% endif %}">{{ r.get_estado_display }}</span>
+            {% if s %}
+              {% if s.estado == 'PENDIENTE' %}
+                <br><span class="badge-app pending">Solicitud pendiente</span>
+              {% else %}
+                <br><small class="text-secondary" title="{{ s.respuesta }}">{{ s.respuesta|truncatechars:40 }}</small>
+              {% endif %}
+            {% endif %}
+          </td>
+          <td>
+            {% if r.estado == 'PENDIENTE' or r.estado == 'CONFIRMADA' %}
+              {% if not s %}
+                <a class="btn-secondary-app" href="#"
+                   onclick="var m=prompt('Motivo de la cancelación:');if(m){location.href='{% url 'mis_reservas' %}?accion=solicitar&pk={{ r.pk }}&motivo='+encodeURIComponent(m)}">Solicitar cancelación</a>
+              {% endif %}
+            {% else %}
+              <small class="text-secondary">—</small>
+            {% endif %}
+          </td>
+        </tr>
+        {% endwith %}
+      {% empty %}
+        <tr><td colspan="7" class="text-center text-secondary">Aún no tienes reservas registradas.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</article>
+{% endblock %}

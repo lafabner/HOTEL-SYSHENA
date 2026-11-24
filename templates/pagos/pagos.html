@@ -1,0 +1,114 @@
+{% extends 'inc/base.html' %}
+{% block title %}Pagos y servicios{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="eyebrow">Cuentas</div>
+    <h1>Pagos y servicios</h1>
+    <p>Selecciona una reserva para ver y administrar su cuenta.</p>
+  </div>
+</div>
+
+<form class="filterbar" method="get">
+  <div class="field">
+    <label for="rreserva">Reserva</label>
+    <select class="form-select" id="rreserva" name="reserva" onchange="this.form.submit()">
+      <option value="">Elige una reserva</option>
+      {% for r in reservas %}
+        <option value="{{ r.pk }}"{% if reserva and reserva.pk == r.pk %} selected{% endif %}>
+          {{ r.codigo }} · {{ r.huesped.nombres }} {{ r.huesped.apellidos }} · Hab {{ r.habitacion.numero }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+</form>
+
+{% if reserva %}
+<div class="grid-kpi">
+  <article class="kpi"><div class="kpi-top"><span>Hospedaje</span></div><strong>${{ reserva.valor_hospedaje|floatformat:"0" }}</strong><small>{{ reserva.noches }} noches</small></article>
+  <article class="kpi"><div class="kpi-top"><span>Servicios</span></div><strong>${{ reserva.valor_servicios|floatformat:"0" }}</strong><small>{{ consumos|length }} consumo{{ consumos|length|pluralize }}</small></article>
+  <article class="kpi"><div class="kpi-top"><span>Pagado</span></div><strong>${{ reserva.valor_pagado|floatformat:"0" }}</strong><small>{{ pagos|length }} pago{{ pagos|length|pluralize }}</small></article>
+  <article class="kpi"><div class="kpi-top"><span>Saldo pendiente</span></div><strong>${{ reserva.saldo_pendiente|floatformat:"0" }}</strong><small>Antes del check-out</small></article>
+</div>
+
+<div class="layout-2" style="margin-top:18px">
+  <article class="panel">
+    <div class="panel-head">
+      <h2>Servicios adicionales</h2>
+      <form class="d-flex gap-2 align-items-end" method="get" action="{% url 'pagos' %}">
+        <input type="hidden" name="accion" value="servicio">
+        <input type="hidden" name="pk" value="{{ reserva.pk }}">
+        <input type="hidden" name="reserva" value="{{ reserva.pk }}">
+        <div class="field"><label>Servicio</label>
+          <select class="form-select" name="servicio">
+            {% for s in servicios %}<option value="{{ s.pk }}">{{ s.nombre }} · ${{ s.precio|floatformat:"0" }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="field"><label>Cantidad</label><input class="form-control" type="number" name="cantidad" value="1" min="1" style="width:80px"></div>
+        <button class="btn-secondary-app" type="submit">Agregar</button>
+      </form>
+    </div>
+    <div class="table-wrap">
+      <table class="app-table">
+        <thead><tr><th>Servicio</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th></tr></thead>
+        <tbody>
+        {% for c in consumos %}
+          <tr>
+            <td>{{ c.servicio.nombre }}</td>
+            <td>{{ c.cantidad }}</td>
+            <td>${{ c.precio_unitario|floatformat:"0" }}</td>
+            <td>${{ c.subtotal|floatformat:"0" }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="4"><div class="empty">Sin servicios registrados.</div></td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  <article class="panel">
+    <div class="panel-head">
+      <h2>Registrar abono</h2>
+    </div>
+    <div class="panel-body">
+      <form method="get" action="{% url 'pagos' %}">
+        <input type="hidden" name="accion" value="pago">
+        <input type="hidden" name="pk" value="{{ reserva.pk }}">
+        <input type="hidden" name="reserva" value="{{ reserva.pk }}">
+        <div class="form-grid">
+          <div class="field"><label>Valor</label><input class="form-control" type="number" name="valor" min="1" step="0.01" required></div>
+          <div class="field"><label>Método</label>
+            <select class="form-select" name="metodo">
+              {% for valor, texto in metodos %}<option value="{{ valor }}">{{ texto }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="field"><label>Referencia</label><input class="form-control" type="text" name="referencia" placeholder="TRX, POS, recibo"></div>
+        </div>
+        <button class="btn-primary-app w-100 mt-3" type="submit">Registrar abono</button>
+      </form>
+    </div>
+    <div class="panel-head"><h2>Historial de pagos</h2></div>
+    <div class="panel-body">
+      <div class="timeline">
+        {% for p in pagos %}
+          <div class="timeline-item">
+            <div class="timeline-mark"><i></i></div>
+            <div class="timeline-text">
+              <strong>${{ p.valor|floatformat:"0" }} · {{ p.get_metodo_display }}</strong>
+              <small>{{ p.fecha_hora|date:"j M Y" }}{% if p.referencia %} · Ref. {{ p.referencia }}{% endif %}</small>
+            </div>
+          </div>
+        {% empty %}
+          <div class="empty">Sin pagos registrados.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </article>
+</div>
+{% else %}
+<article class="panel" style="margin-top:18px">
+  <div class="empty">No hay reservas activas para administrar.</div>
+</article>
+{% endif %}
+{% endblock %}

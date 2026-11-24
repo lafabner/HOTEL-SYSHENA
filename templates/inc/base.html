@@ -1,0 +1,55 @@
+{% load static %}<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="SysHSENA: gestión de alojamientos, reservas y servicios turísticos de La Guajira">
+  <title>{% block title %}Panel{% endblock %} · SysHSENA</title>
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <script src="{% static 'js/validaciones.js' %}" defer></script>
+  <script>
+    /* Aplica el tema guardado antes de pintar para evitar parpadeos */
+    (function () {
+      var t = localStorage.getItem('syshsena-tema') ||
+              (matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<div class="shell">
+  {% include 'inc/sidebar.html' %}
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+  <div class="main">
+    <header class="topbar">
+      <div class="d-flex align-items-center gap-2">
+        <button class="icon-btn mobile-menu" id="menuBtn" type="button" aria-label="Abrir menú">☰</button>
+        <div class="breadcrumb-app">SysHSENA / <strong>{% block breadcrumb %}{{ pagina_titulo|default:"Inicio" }}{% endblock %}</strong></div>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="themeBtn" type="button" aria-label="Cambiar tema">☾</button>
+        <button class="icon-btn" type="button" aria-label="Notificaciones">♢</button>
+        <form class="logout-form" method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button class="icon-btn" type="submit" aria-label="Cerrar sesión" title="Cerrar sesión">↪</button>
+        </form>
+      </div>
+    </header>
+    <main class="content" id="main">
+      {% include 'inc/mensajes.html' %}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+<div class="toast-app" id="toast" role="status" aria-live="polite"></div>
+<script src="{% static 'js/bootstrap.bundle.js' %}"></script>
+<script src="{% static 'js/app.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

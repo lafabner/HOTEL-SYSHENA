@@ -1,0 +1,68 @@
+{% load static %}<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Iniciar sesión · SysHSENA</title>
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <script>
+    (function () {
+      var t = localStorage.getItem('syshsena-tema') ||
+              (matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+</head>
+<body>
+<div class="login-layer">
+  <section class="login-visual" aria-label="Paisaje de La Guajira">
+    <img src="{% static 'img/alojamiento.jpg' %}" alt="Alojamiento costero con vista al mar en La Guajira" width="1200" height="800" onerror="this.remove()">
+    <div class="login-caption">
+      <span class="eyebrow" style="color:#ffdca9">Gestión hotelera regional</span>
+      <h1>La operación completa del alojamiento, en un solo lugar.</h1>
+      <p>Reservas, huéspedes, pagos, servicios y ocupación con una identidad inspirada en La Guajira.</p>
+    </div>
+  </section>
+  <main class="login-form">
+    <form class="login-box" method="post" novalidate>
+      {% csrf_token %}
+      {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+      <div class="login-brand">
+        <svg viewBox="0 0 48 48" fill="none" aria-label="Logo SysHSENA"><path d="M6 30c7-10 13-15 20-15 6 0 10 3 16 9" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M7 36c7-6 13-9 20-9 6 0 10 2 14 5" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><circle cx="34" cy="10" r="4" fill="#c7764e"/></svg>
+        <div><strong>SysHSENA</strong><small class="d-block text-secondary">Posada Guajira Serena</small></div>
+      </div>
+      <h2>Iniciar sesión</h2>
+      <p>Ingresa para acceder a las funciones de tu rol.</p>
+
+      {% if form.non_field_errors %}
+        <div class="alert-app error" role="alert">
+          {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="field">
+        <label for="{{ form.username.id_for_label }}">Correo o usuario</label>
+        {{ form.username }}
+      </div>
+      <div class="field">
+        <label for="{{ form.password.id_for_label }}">Contraseña</label>
+        {{ form.password }}
+      </div>
+      <div class="login-help">
+        <label>{{ form.recordarme }} Recordarme</label>
+        <a href="{% url 'password_reset' %}" style="color:var(--primary)">Recuperar contraseña</a>
+      </div>
+      <button class="btn-primary-app w-100" type="submit">Ingresar al sistema</button>
+      <div class="login-help" style="justify-content:center;margin-top:16px">
+        <a href="{% url 'registro' %}" style="color:var(--primary)">¿No tienes cuenta? Regístrate</a>
+      </div>
+      <div class="demo-note"><strong>Acceso por rol.</strong> Administrador, recepcionista, cliente y gerente ven opciones distintas al ingresar.</div>
+    </form>
+  </main>
+</div>
+</body>
+</html>

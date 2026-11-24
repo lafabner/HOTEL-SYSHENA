@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
-import dj_database_url
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,9 +28,9 @@ SECRET_KEY = 'django-insecure-vd+778n(g3+h1fngn5%#3r6u!$0+qs7&(*s1$kzv3g=7jee)2b
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    'hotel-syshena.onrender.com',
+    "127.0.0.1",
+    "localhost",
+    "hotel-syshena-v0q.onrender.com",
 ]
 
 
@@ -89,7 +89,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
+import dj_database_url
 DATABASES = {
     'default': dj_database_url.config(
         default=os.getenv('DATABASE_URL')

@@ -2,5 +2,3 @@
 waitress>=3.0.2,<4
 whitenoise>=6.9,<7
 Pillow>=11,<13
-dj-database-url
-psycopg2-binary

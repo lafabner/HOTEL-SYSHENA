@@ -1,0 +1,12 @@
+# Contraseñas y configuración privada
+.env
+.env.*
+!.env.example
+
+# Copia privada de los datos
+datos_migracion.json
+
+# Archivos estáticos generados
+staticfiles/S
+
+staticfiles/

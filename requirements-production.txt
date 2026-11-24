@@ -4,3 +4,4 @@ whitenoise>=6.9,<7
 Pillow>=11,<13
 dj-database-url
 gunicorn
+dj-database-url

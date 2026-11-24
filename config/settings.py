@@ -30,7 +30,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
-    "hotel-syshena-v0q.onrender.com",
+    "hotel-syshena-vo0q.onrender.com",
 ]
 
 
